@@ -198,17 +198,24 @@ def segment_based_length_safe(D_si, D_bi, D_eo, N_s, Pitch, T_c_init):
     # print(f"r_star{r_star_a}, e_star_a{e_star_a}, e_star_t{e_star_t}, Pitch{Pitch}")
     for i in range(N_seg):
         # Calculate the Property of fluid
-
+        delta_T1 = T_h[i+1] - T_c[i]
+        delta_T2 = T_h[i] - T_c[i]
+        if delta_T1 <= 0 or delta_T2 <= 0 or np.isclose(delta_T1, delta_T2):
+            LMTD = abs((delta_T1 + delta_T2) / 2)
+        else:
+            LMTD = (delta_T1 - delta_T2) / np.log(delta_T1 / delta_T2)
+        T_h_avg_i = (T_h[i] + T_h[i+1]) / 2
+        T_c_avg_i = (T_c[i] + T_c[i]) / 2
         # hot fluid
-        rho_h = density(T_h_avg, x_h) # W/mK
-        mu_h = viscosity(T_h_avg, x_h) # kg/ms
-        k_h = conductivity(T_h_avg, x_h) # kg/m^3
+        rho_h = density(T_h_avg_i, x_h) # W/mK
+        mu_h = viscosity(T_h_avg_i, x_h) # kg/ms
+        k_h = conductivity(T_h_avg_i, x_h) # kg/m^3
         Cp_h_val = specific_heat(T_h_avg - 273.15, x_h) * 1000
 
         # Cold fluid
-        rho_c = density(T_c_avg, x_c) # W/mK
-        mu_c = viscosity(T_c_avg, x_c) # kg/ms
-        k_c = conductivity(T_c_avg, x_c) # kg/m^3
+        rho_c = density(T_c_avg_i, x_c) # W/mK
+        mu_c = viscosity(T_c_avg_i, x_c) # kg/ms
+        k_c = conductivity(T_c_avg_i, x_c) # kg/m^3
         Cp_c_val = specific_heat(T_c_avg - 273.15, x_c) * 1000
 
         # Velocity
@@ -234,12 +241,8 @@ def segment_based_length_safe(D_si, D_bi, D_eo, N_s, Pitch, T_c_init):
 
         U = 1 / ((1 / h_t) + D_vi_m / (2 * k_wall) * np.log(D_vo_m / D_vi_m) + (1 / h_a) * (D_vi_m / D_vo_m))
         # LMTD 계산
-        delta_T1 = T_h[i+1] - T_c[i]
-        delta_T2 = T_h[i] - T_c[i]
-        if delta_T1 <= 0 or delta_T2 <= 0 or np.isclose(delta_T1, delta_T2):
-            LMTD = abs((delta_T1 + delta_T2) / 2)
-        else:
-            LMTD = (delta_T1 - delta_T2) / np.log(delta_T1 / delta_T2)
+
+
 
         # 열전달량 Q (양쪽 평균)
         Q1 = mh_dot * Cp_h_val * (T_h[i] - T_h[i+1])
