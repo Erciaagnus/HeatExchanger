@@ -228,6 +228,11 @@ Common validation metrics:
 Place into:
 - `HeatExchanger/data/`
 
+| Dataset | Purpose | Target path (repo) | File name | Download link | Notes |
+|---|---|---|---|---|---|
+| porousdata | Prebuilt porous parameters dataset (1/K, C2, etc.) | `data/` | `porousdata.xlsx` | [Download](<PUT_LINK_HERE>) | Put the file exactly at `HeatExchanger/data/porousdata.xlsx` |
+| total_2D_Data | CFD/2D training dataset for surrogate (Q'', ΔP) | `data/` | `total_2D_Data.xlsx` | [Download](<PUT_LINK_HERE>) | Used by GP surrogate training + GA optimization |
+
 Examples:
 - `data/porousdata.xlsx`
 - `data/total_2D_Data.xlsx`
