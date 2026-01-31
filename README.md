@@ -66,51 +66,75 @@ ls -lh data
 ```
 
 Expected examples:
-- `data/porousdata.xlsx`
-- `data/total_2D_Data.xlsx`
+- `data/porouos_from_design.csv`
+- `data/porous_LHS_100_projected.csv`
+- `data/constrained_LHS_100k.csv`
+
+Notes
+- if you downloaded already includes a representative subset(porous_from_design.csv) you can skip section 1.3
+- if you only downloaded constrained_LHS_100k.csv, go to section 1.2, and execute mapping code
 
 #### 1.2 Option B — Generate the dataset locally (Sampling)
 
+##### a. Generate Points
 Run the sampling script (LHS sampling + porous parameter calculation):
 
-- Script: `HeatExchanger/scripts/surrogate/sampling.py`
+- Script: `HeatExchanger/scripts/sampling/generate_point.py`
 - Output directory: `HeatExchanger/data/` (recommended convention)
 
 ```bash
 cd /path/to/HeatExchanger
 
-python3 scripts/surrogate/sampling.py
+python3 scripts/sampling/generate_point.py
 
 # Check generated file(s)
 ls -lh data | tail -n 20
 ```
 
 Expected output example:
-- `data/LHS_Porous_Params_Result.csv`
+- `data/constrained_LHS_100k.csv`
 
-#### 1.3 (Optional) Select representative points (similarity / downsampling)
+##### b. Mapping
+- Script: `HeatExchanger/scripts/sampling/generate_point.py`
+- Output directory: `HeatExchanger/data/` (recommended convention)
 
-If you select representative points after sampling:
+```bash
+cd /path/to/HeatExchanger
 
-- Script: `HeatExchanger/scripts/finding_similar.py`
+python3 scripts/sampling/mapping_to_porous.py
+
+# Check generated file(s)
+ls -lh data | tail -n 20
+```
+Expected output example:
+- `data/porous_from_design.csv`
+
+#### 1.3 Select representative points (similarity / downsampling)
+
+Select representative points using LHS sampling
+
+- Script: `HeatExchanger/scripts/lhs_sampling.py`
 - Output directory: `HeatExchanger/data/` (recommended)
 
 ```bash
 cd /path/to/HeatExchanger
 
-python3 scripts/finding_similar.py
+python3 scripts/sampling/lhs_sampling.py
 
 # Check generated file(s)
 ls -lh data | tail -n 20
 ```
 
+Expected output example:
+- `data/porous_LHS_100_porjected.csv`
+
 ---
 
-### 2) Convert Design CSV → Porous CSV (porous_converter.py)
+### 2) Visualizing Sampling Results
 
-If you already have a **design-only CSV** (S1/FH/FS) and want to convert it into a porous-parameter CSV:
+If you want check the sampling results, visualize the results following this instructions
 
-- Script: `HeatExchanger/scripts/porous_calc/porous_converter.py`
+- Script: `HeatExchanger/scripts/visualization/plot_porous_sampling.py`
 - Input directory: `HeatExchanger/data/`
 - Output directory: `HeatExchanger/data/`
 
@@ -120,63 +144,56 @@ cd /path/to/HeatExchanger
 # Example:
 #   input  : data/LHS_design_samples.csv
 #   output : data/porous_from_design.csv
-python3 scripts/porous_calc/porous_converter.py   --in data/LHS_design_samples.csv   --out data/porous_from_design.csv   --T 14.8   --v 2.019   --Dc 24.0   --delta_f 0.5   --pitch_ratio 1.0   --N 4   --v_min 0.5   --v_max 3.5   --n_points 50   --check_constraint
+python3 scripts/visualization/plot_porous_sampling.py
 
 # Verify output
-ls -lh data/porous_from_design.csv
+ls -lh figure/porous_plots/dist_3d_log.png
 ```
+Expected output example:
+- `figure/porous_plots/dist_3d_log.png`
+- `figure/porous_plots/hist_inertial_log.png`
+- `figure/porous_plots/hist_porosity.png`
+- `figure/porous_plots/hist_viscous_log.png`
 
-**Column name requirements (input CSV)**  
-The input CSV must contain these columns (case-insensitive matching is supported):
-
-- S1: `S1_mm` / `S1` / `s1_mm` / `s1`
-- fin height: `fin_height_fh_mm` / `fh_mm` / `fin_height` / `fh` / `hf_mm` / `hf`
-- fin spacing: `fin_spacing_fs_mm` / `fs_mm` / `fin_spacing` / `Fs_mm` / `Fs` / `fs`
-
----
-
-### 3) Train GP Surrogate Models (Q'' and ΔP)
+### 3) Train GP Surrogate Models (Q'' and ΔP) and Find Optimization Value
 
 This stage trains Gaussian Process models for:
 - `Q''` (heat flux, W/m²)
 - `ΔP` (pressure drop, Pa)
 
-> Your surrogate training script(s) may differ by filename. Use the commands below as a template.
+> You should download the "data file"(total_2D_Data.xlsx) or get your own data using CFD
 
-#### 3.1 Train surrogate
+#### 3.1 Train surrogate and optimize
 
+##### a. Training and Results
+If you want to see the result directly using this code
 ```bash
 cd /path/to/HeatExchanger
 
-# Example: run a surrogate training script
-python3 scripts/surrogate/train_surrogate.py --data data/total_2D_Data.xlsx
+python3 scripts/surrogate/surrogate_model.py
 ```
 
-If your script is a plain Python file without CLI args, just run it directly:
+##### b. Train Model
+If you want store the trained model and use at others, using this code
 ```bash
 cd /path/to/HeatExchanger
-python3 scripts/surrogate/train_surrogate.py
+
+python3 scripts/surrogate/train_model.py
 ```
+Expected output example:
+- `model/gp_surrogate_bundle.joblib`
 
-#### 3.2 Run GA optimization (optional)
-
-```bash
-cd /path/to/HeatExchanger
-
-python3 scripts/surrogate/train_surrogate.py --mode ga --data data/total_2D_Data.xlsx
-```
-
-#### 3.3 Predict using a user-defined design (optional)
+#### 3.2 Validate the surrogate Model
 
 ```bash
 cd /path/to/HeatExchanger
 
-python3 scripts/surrogate/train_surrogate.py --mode predict   --data data/total_2D_Data.xlsx   --s1 181.0394 --fh 28.9923 --fs 2.6038
+python3 scripts/surrogate/validate_model.py
 ```
 
 ---
 
-### 4) Validate the value with CFD data
+### 4) Validate the Results using 3D CFD Value
 
 Compare:
 - Surrogate-predicted `Q''` and `ΔP`
@@ -199,27 +216,17 @@ cd /path/to/HeatExchanger
 ls -lh data | grep -i cfd
 ```
 
-#### 4.2 Run validation script
+#### 4.2 Validate "Friction Factor" Correlation
 
 ```bash
 cd /path/to/HeatExchanger
 
-python3 scripts/validation/validate_with_cfd.py   --train data/total_2D_Data.xlsx   --cfd   data/CFD_validation.csv   --out   data/validation_report.csv
+python3 scripts/verfication/validate_correlation.py
 ```
 
 Expected outputs:
-- `data/validation_report.csv` (per-sample error summary)
-- (Optional) parity plots / error histograms (if implemented)
+- `figure/correlation_bar.png` 
 
-#### 4.3 What to report
-
-Common validation metrics:
-- R² (CFD vs surrogate)
-- MAE / RMSE for `Q''` and `ΔP`
-- Parity plot (y = x) and error distribution
-- Worst-case error samples (top-k)
-
----
 
 ## II. Dataset
 
@@ -230,19 +237,14 @@ Place into:
 
 | Dataset | Purpose | Target path (repo) | File name | Download link | Notes |
 |---|---|---|---|---|---|
-| porousdata | Prebuilt porous parameters dataset (1/K, C2, etc.) | `data/` | `porousdata.xlsx` | [Download](<PUT_LINK_HERE>) | Put the file exactly at `HeatExchanger/data/porousdata.xlsx` |
+| constrained_LHS_100k.csv | Prebuilt discretized desing parameter space (1/K, C2, etc.) | `data/` | `constrained_LHS_100k.csv` | [Download](<PUT_LINK_HERE>) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
+| porous_from_design | Prebuilt mapping data from discretized design parameter space into porous parameter space | `data/` | `porous_form_design.csv` | [Download](<PUT_LINK_HERE>) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
+| porous_LHS_100_projected | LHS Sampling data | `data/` | `porous_LHS_100_projected.xlsx` | [Download](<PUT_LINK_HERE>) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
 | total_2D_Data | CFD/2D training dataset for surrogate (Q'', ΔP) | `data/` | `total_2D_Data.xlsx` | [Download](<PUT_LINK_HERE>) | Used by GP surrogate training + GA optimization |
+| correlation_validation | CFD/Correlation Pressure drop Results data for comparing | `data/` | `correlation.xlsx` | [Download](<PUT_LINK_HERE>) | Validate the correlation |
 
 Examples:
-- `data/porousdata.xlsx`
+- `data/constrained_LHS_100_projected.xlsx`
 - `data/total_2D_Data.xlsx`
-
-### B) Locally generated dataset
-
-Generated by:
-- `scripts/surrogate/sampling.py`
-
-Output example:
-- `data/LHS_Porous_Params_Result.csv`
 
 ---
