@@ -2,3 +2,14 @@
 *.png
 *.txt
 *.xlsx
+
+# but keep assets folder contents
+!assets/
+!assets/**
+
+# allow images in assets
+!assets/**/*.png
+!assets/**/*.jpg
+!assets/**/*.jpeg
+!assets/**/*.gif
+!assets/**/*.svg
