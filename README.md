@@ -19,6 +19,91 @@ This repository supports the workflow:
 3) Train GP surrogate models (Q'' and ΔP) and optionally run GA optimization / prediction
 4) Validate the Value with CFD Data
 
+<table>
+  <tr>
+    <td valign="top" width="50%">
+      <b>Table 1: Design parameter ranges.</b>
+      <table>
+        <thead>
+          <tr>
+            <th align="left">Parameter</th>
+            <th align="center">Symbol</th>
+            <th align="center">Range</th>
+            <th align="center">Unit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Fin height</td>
+            <td align="center"><i>f</i><sub>h</sub></td>
+            <td align="center">[6, 30]</td>
+            <td align="center">mm</td>
+          </tr>
+          <tr>
+            <td>Fin spacing</td>
+            <td align="center"><i>f</i><sub>s</sub></td>
+            <td align="center">[2, 8]</td>
+            <td align="center">mm</td>
+          </tr>
+          <tr>
+            <td>Tube spacing</td>
+            <td align="center"><i>S</i><sub>t</sub></td>
+            <td align="center">[45, 200]</td>
+            <td align="center">mm</td>
+          </tr>
+          <tr>
+            <td>Tube diameter</td>
+            <td align="center"><i>D</i><sub>c</sub></td>
+            <td align="center">24 (fixed)</td>
+            <td align="center">mm</td>
+          </tr>
+          <tr>
+            <td>Fin thickness</td>
+            <td align="center">&delta;<sub>f</sub></td>
+            <td align="center">0.5 (fixed)</td>
+            <td align="center">mm</td>
+          </tr>
+        </tbody>
+      </table>
+    </td>
+
+    <td valign="top" width="50%">
+      <b>Table 2: Porous-medium parameter ranges.</b>
+      <table>
+        <thead>
+          <tr>
+            <th align="left">Parameter</th>
+            <th align="center">Symbol</th>
+            <th align="center">Range</th>
+            <th align="center">Unit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Porosity</td>
+            <td align="center">&alpha;</td>
+            <td align="center">[0.80, 0.941]</td>
+            <td align="center">&ndash;</td>
+          </tr>
+          <tr>
+            <td>Viscous resistance</td>
+            <td align="center">1/<i>K</i></td>
+            <td align="center">[8.36 &times; 10<sup>3</sup>, 1.68 &times; 10<sup>5</sup>]</td>
+            <td align="center">m<sup>&minus;2</sup></td>
+          </tr>
+          <tr>
+            <td>Inertial resistance</td>
+            <td align="center"><i>C</i><sub>2</sub></td>
+            <td align="center">[0.34, 6.83]</td>
+            <td align="center">m<sup>&minus;1</sup></td>
+          </tr>
+        </tbody>
+      </table>
+    </td>
+  </tr>
+</table>
+
+
 ## I. Step-by-Step
 
 ### 0) Setup (recommended)
