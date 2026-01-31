@@ -1,4 +1,17 @@
 # A Study of Designing Heat Exchanger
+<table>
+  <tr>
+    <td align="center">
+      <img src="assets/3D_Geometry.png" width="420"><br>
+      (a) Our Heat Exchanger Setting
+    </td>
+    <td align="center">
+      <img src="assets/Fig1_schem.png" width="420"><br>
+      (b) Our WorkFlow and Framework
+    </td>
+  </tr>
+</table>
+
 This repository supports the workflow:
 
 1) Generate design samples (LHS)  
