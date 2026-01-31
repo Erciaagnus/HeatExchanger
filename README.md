@@ -275,7 +275,7 @@ Place into:
 | porous_from_design | Prebuilt mapping data from discretized design parameter space into porous parameter space | `data/` | `porous_form_design.csv` | [Download](<PUT_LINK_HERE>) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
 | porous_LHS_100_projected | LHS Sampling data | `data/` | `porous_LHS_100_projected.xlsx` | [Download](<PUT_LINK_HERE>) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
 | total_2D_Data | CFD/2D training dataset for surrogate (Q'', ΔP) | `data/` | `total_2D_Data.xlsx` | [Download](<PUT_LINK_HERE>) | Used by GP surrogate training + GA optimization |
-| correlation_validation | CFD/Correlation Pressure drop Results data for comparing | `data/` | `correlation.xlsx` | [Download](<PUT_LINK_HERE>) | Validate the correlation |
+| correlation_validation | CFD/Correlation Pressure drop Results data for comparing | `data/` | `correlation.xlsx` | [Download](https://drive.google.com/drive/folders/1o2IoAN5qobvBTofFHXgbaULELLnqHsHG) | Validate the correlation |
 
 Examples:
 - `data/constrained_LHS_100_projected.xlsx`
