@@ -271,11 +271,12 @@ Place into:
 
 | Dataset | Purpose | Target path (repo) | File name | Download link | Notes |
 |---|---|---|---|---|---|
-| constrained_LHS_100k.csv | Prebuilt discretized desing parameter space (1/K, C2, etc.) | `data/` | `constrained_LHS_100k.csv` | [Download](<PUT_LINK_HERE>) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
-| porous_from_design | Prebuilt mapping data from discretized design parameter space into porous parameter space | `data/` | `porous_form_design.csv` | [Download](<PUT_LINK_HERE>) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
-| porous_LHS_100_projected | LHS Sampling data | `data/` | `porous_LHS_100_projected.xlsx` | [Download](<PUT_LINK_HERE>) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
-| total_2D_Data | CFD/2D training dataset for surrogate (Q'', ΔP) | `data/` | `total_2D_Data.xlsx` | [Download](<PUT_LINK_HERE>) | Used by GP surrogate training + GA optimization |
-| correlation_validation | CFD/Correlation Pressure drop Results data for comparing | `data/` | `correlation.xlsx` | [Download](https://drive.google.com/drive/folders/1o2IoAN5qobvBTofFHXgbaULELLnqHsHG) | Validate the correlation |
+| constrained_LHS_100k.csv | Prebuilt discretized desing parameter space (1/K, C2, etc.) | `data/` | `constrained_LHS_100k.csv` | [Download](https://drive.google.com/file/d/1Hzyr6jFuvSDbYS0hM3SV7GWseYhy2l3B/view?usp=sharing) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
+| porous_from_design | Prebuilt mapping data from discretized design parameter space into porous parameter space | `data/` | `porous_form_design.csv` | [Download](https://drive.google.com/file/d/1-b9ITB2Py9zh9xvWC0bQPmHUWO1Jx5Su/view?usp=sharing) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
+| porous_LHS_100_projected | LHS Sampling data | `data/` | `porous_LHS_100_projected.xlsx` | [Download](https://drive.google.com/file/d/1kyfm2etmyBOGlUp7NN8oyMlIQnfx3RH1/view?usp=sharing) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
+| total_2D_Data | CFD/2D training dataset for surrogate (Q'', ΔP) | `data/` | `total_2D_Data.xlsx` | [Download](https://docs.google.com/spreadsheets/d/1TIY6R9JWc_unvrp2MYD1p0mqGrTnvXDm/edit?usp=drive_link&ouid=104530917061786781776&rtpof=true&sd=true) | Used by GP surrogate training + GA optimization |
+| correlation_validation | CFD/Correlation Pressure drop Results data for comparing | `data/` | `correlation.xlsx` | [Download](https://docs.google.com/spreadsheets/d/1DSY4NBFwkQYlum0YDTxTGT0CMB_H68NT/edit?usp=sharing&ouid=104530917061786781776&rtpof=true&sd=true) | Validate the correlation |
+| CFD Setup Data | 2D/3D Setup Data | `data/` | CFD setup data zip | [Download](https://drive.google.com/drive/folders/1o2IoAN5qobvBTofFHXgbaULELLnqHsHG) | Setup file |
 
 Examples:
 - `data/constrained_LHS_100_projected.xlsx`
