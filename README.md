@@ -19,10 +19,11 @@ This repository supports the workflow:
 3) Train GP surrogate models (Q'' and ΔP) and optionally run GA optimization / prediction
 4) Validate the Value with CFD Data
 
+<!-- Two tables side-by-side -->
 <table>
   <tr>
     <td valign="top" width="50%">
-      <b>Table 1: Design parameter ranges.</b>
+      <p><b>Table 1: Design parameter ranges.</b></p>
       <table>
         <thead>
           <tr>
@@ -68,7 +69,7 @@ This repository supports the workflow:
     </td>
 
     <td valign="top" width="50%">
-      <b>Table 2: Porous-medium parameter ranges.</b>
+      <p><b>Table 2: Porous-medium parameter ranges.</b></p>
       <table>
         <thead>
           <tr>
@@ -102,6 +103,7 @@ This repository supports the workflow:
     </td>
   </tr>
 </table>
+
 
 
 ## I. Step-by-Step
