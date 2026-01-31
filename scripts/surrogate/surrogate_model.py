@@ -306,7 +306,7 @@ def run_ga_optimization(file_path: str):
     cons_ratio = q_eff / max(dp_eff, DP_FLOOR)
 
     print("\n" + "=" * 70)
-    print("       GA(Genetic Algorithm) 최적 설계 결과 (Surrogate-based)")
+    print("       🧬 GA(Genetic Algorithm) 최적 설계 결과 (Surrogate-based)")
     print("=" * 70)
     print("1. 최적 설계변수 (Optimal Design Variables):")
     print(f"   - S1 (mm)          : {opt_s1:.4f}")
@@ -331,94 +331,6 @@ def run_ga_optimization(file_path: str):
     # Optional: ga_instance.plot_fitness()
 
 
-# =============================================================================
-# 3. 사용자 입력 설계변수로 직접 예측하는 함수
-# =============================================================================
-def predict_design(file_path: str, s1: float, fin_height: float, fin_spacing: float):
-    """
-    특정 설계 변수 입력 시 Q''와 ΔP를 예측합니다.
-    
-    Parameters:
-    -----------
-    file_path : str
-        학습 데이터 파일 경로
-    s1 : float
-        설계 변수 S1 (mm), 범위: 45~200
-    fin_height : float
-        핀 높이 (mm), 범위: 6~40
-    fin_spacing : float
-        핀 간격 (mm), 범위: 2~8
-    
-    Returns:
-    --------
-    dict : {"Q''" : (mean, std), "ΔP" : (mean, std)}
-    """
-    print("\n" + "="*70)
-    print("        사용자 설계변수 예측 (User-Defined Prediction)")
-    print("="*70)
-    
-    # 1. 모델 학습
-    print("\n[단계 1] 대리모델 학습 중...")
-    models, scaler_X, scalers_y = load_and_train_model(file_path)
-    if models is None:
-        print("[오류] 모델 학습 실패")
-        return None
-    
-    # 2. 입력 검증
-    print(f"\n[단계 2] 입력된 설계변수:")
-    print(f"   - S1           : {s1:.2f} mm")
-    print(f"   - Fin Height   : {fin_height:.2f} mm")
-    print(f"   - Fin Spacing  : {fin_spacing:.2f} mm")
-    
-    # 기하학적 제약조건 확인
-    fh_limit = 0.5 * ((s1 / np.sqrt(2)) - 24.0) - 0.4
-    print(f"\n[제약조건 확인]")
-    print(f"   - S1 범위 (45~200)      : {'✓' if 45 <= s1 <= 200 else '✗'}")
-    print(f"   - FH 하한 (≥6)          : {'✓' if fin_height >= 6 else '✗'}")
-    print(f"   - FH 상한 (≤{fh_limit:.2f}) : {'✓' if fin_height <= fh_limit else '✗ 초과!'}")
-    print(f"   - FS 범위 (2~8)         : {'✓' if 2 <= fin_spacing <= 8 else '✗'}")
-    
-    # 3. 예측
-    print(f"\n[단계 3] GP 대리모델 예측 중...")
-    design_input = np.array([[s1, fin_height, fin_spacing]])
-    design_scaled = scaler_X.transform(design_input)
-    
-    # Q'' 예측 (mean ± std)
-    q_mu_sc, q_std_sc = models["q"].predict(design_scaled, return_std=True)
-    q_mu, q_std = _inverse_mean_std(scalers_y["q"], q_mu_sc[0], q_std_sc[0])
-    
-    # ΔP 예측 (mean ± std)
-    dp_mu_sc, dp_std_sc = models["dp"].predict(design_scaled, return_std=True)
-    dp_mu, dp_std = _inverse_mean_std(scalers_y["dp"], dp_mu_sc[0], dp_std_sc[0])
-    
-    # 4. 결과 출력
-    print("\n" + "="*70)
-    print("       예측 결과 (Prediction Results)")
-    print("="*70)
-    print(f"   - Q'' (Heat Flux)      : {q_mu:>10.2f} ± {q_std:>6.2f}  W/m²")
-    print(f"   - ΔP (Pressure Drop)   : {dp_mu:>10.4f} ± {dp_std:>6.4f}  Pa")
-    print(f"   - Q''/ΔP Ratio         : {q_mu/max(dp_mu, 1e-6):>10.4f}")
-    print("="*70 + "\n")
-    
-    return {
-        "Q''": (q_mu, q_std),
-        "ΔP": (dp_mu, dp_std),
-        "Ratio": q_mu / max(dp_mu, 1e-6)
-    }
-
-
 if __name__ == "__main__":
-    # =========================================================================
-    # 사용 방법 선택:
-    # 1. 자동 최적화 (GA) → run_ga_optimization() 사용
-    # 2. 수동 입력 예측   → predict_design() 사용
-    # =========================================================================
-    
-    file_path = "total_2D_Data.xlsx"
-    
-    predict_design(
-        file_path=file_path,
-        s1=181.0394,           # S1 (mm)
-        fin_height=28.9923,    # Fin Height (mm)
-        fin_spacing=2.6038     # Fin Spacing (mm)
-    )
+    file_path = "../../data/total_2D_Data.xlsx"
+    run_ga_optimization(file_path)
