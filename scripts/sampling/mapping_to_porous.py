@@ -516,6 +516,52 @@ def run_batch(
     return pd.DataFrame(out_rows)
 
 
+
+def run_batch_mapping(
+    in_csv: str,
+    out_csv: str,
+    T_celsius: float,
+    v_design: float,
+    Dc_mm: float,
+    delta_f_mm: float,
+    pitch_ratio: float,
+    N: int,
+    v_min: float,
+    v_max: float,
+    n_points: int,
+    max_rows: Optional[int],
+    progress_every: int,
+    check_constraint: bool
+) -> pd.DataFrame:
+    df = pd.read_csv(in_csv)
+    if max_rows is not None:
+        df = df.iloc[: max_rows].copy()
+
+    out_df = run_batch(
+        df,
+        T_celsius=T_celsius,
+        v_design=v_design,
+        Dc_mm=Dc_mm,
+        delta_f_mm=delta_f_mm,
+        pitch_ratio=pitch_ratio,
+        N=N,
+        v_min=v_min,
+        v_max=v_max,
+        n_points=n_points,
+        check_constraint=check_constraint,
+        progress_every=progress_every,
+    )
+
+    import os
+    out_path = os.path.abspath(out_csv)
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    out_df.to_csv(out_path, index=False)
+    print(f"Saved: {out_path}")
+    print("Done.")
+    return out_df
+
+
 def main():
     ap = argparse.ArgumentParser(description="Integrated batch porous-parameter generator (single-file)")
 
@@ -541,12 +587,9 @@ def main():
                     help="Check fh <= fh_upper(s1) and record violations (does not drop rows)")
     args = ap.parse_args()
 
-    df = pd.read_csv(args.in_csv)
-    if args.max_rows is not None:
-        df = df.iloc[: args.max_rows].copy()
-
-    out_df = run_batch(
-        df,
+    run_batch_mapping(
+        in_csv=args.in_csv,
+        out_csv=args.out_csv,
         T_celsius=args.T,
         v_design=args.v,
         Dc_mm=args.Dc,
@@ -556,16 +599,12 @@ def main():
         v_min=args.v_min,
         v_max=args.v_max,
         n_points=args.n_points,
-        check_constraint=args.check_constraint,
+        max_rows=args.max_rows,
         progress_every=args.progress_every,
+        check_constraint=args.check_constraint
     )
-
-    import os
-    out_path = os.path.abspath(args.out_csv)
-    out_df.to_csv(out_path, index=False)
-    print(f"Saved: {out_path}")
-    print("Done.")
 
 
 if __name__ == "__main__":
     main()
+

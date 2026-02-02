@@ -38,14 +38,8 @@ def fh_max(s: np.ndarray, td: float, margin_outside: float) -> np.ndarray:
     return 0.5*(s/sqrt(2) - td) - margin_outside
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--n", type=int, default=100_000, help="Number of samples")
-    ap.add_argument("--seed", type=int, default=2025, help="Random seed for LHS")
-    ap.add_argument("--out", type=str, default="../../data/constrained_LHS_100k.csv", help="Output CSV path")
-    ap.add_argument("--include_diag", action="store_true", help="Include fh_upper_mm diagnostic column")
-    args = ap.parse_args()
 
+def generate_constrained_lhs(n: int, seed: int, out_path: str, include_diag: bool = False) -> pd.DataFrame:
     # Parameters / constraints (mm)
     s_min, s_max = 45.0, 200.0
     fh_min = 6.0
@@ -65,8 +59,8 @@ def main():
         )
 
     # LHS in unit cube (3 dims: s, f_h, f_s)
-    sampler = qmc.LatinHypercube(d=3, seed=args.seed)
-    U = sampler.random(n=args.n)
+    sampler = qmc.LatinHypercube(d=3, seed=seed)
+    U = sampler.random(n=n)
 
     u_s, u_fh, u_fs = U[:, 0], U[:, 1], U[:, 2]
 
@@ -89,7 +83,7 @@ def main():
         "fin_spacing_fs_mm": fs,
     })
 
-    if args.include_diag:
+    if include_diag:
         df["fh_upper_mm"] = fh_upper
 
     # Sanity checks
@@ -105,17 +99,31 @@ def main():
     }
 
     print("=== Constrained LHS generation summary ===")
-    print(f"n={args.n}, seed={args.seed}")
+    print(f"n={n}, seed={seed}")
     print(f"s_min_feasible={s_min_feasible:.6f} mm (implied by fh_min and coupled constraint)")
     print(f"S1 range: [{df['S1_mm'].min():.6f}, {df['S1_mm'].max():.6f}]")
     print(f"fh range: [{df['fin_height_fh_mm'].min():.6f}, {df['fin_height_fh_mm'].max():.6f}]")
     print(f"fs range: [{df['fin_spacing_fs_mm'].min():.6f}, {df['fin_spacing_fs_mm'].max():.6f}]")
     print("violations:", violations)
 
-    out_path = args.out
-    df.to_csv(out_path, index=False)
-    print(f"Saved: {out_path}")
+    if out_path:
+        df.to_csv(out_path, index=False)
+        print(f"Saved: {out_path}")
+    
+    return df
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--n", type=int, default=100_000, help="Number of samples")
+    ap.add_argument("--seed", type=int, default=2025, help="Random seed for LHS")
+    ap.add_argument("--out", type=str, default="../../data/constrained_LHS_100k.csv", help="Output CSV path")
+    ap.add_argument("--include_diag", action="store_true", help="Include fh_upper_mm diagnostic column")
+    args = ap.parse_args()
+
+    generate_constrained_lhs(n=args.n, seed=args.seed, out_path=args.out, include_diag=args.include_diag)
 
 
 if __name__ == "__main__":
     main()
+

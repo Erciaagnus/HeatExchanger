@@ -80,11 +80,12 @@ def save_hist(data: np.ndarray, xlabel: str, out_path: str, bins: int) -> None:
     plt.close(fig)
 
 
-def main():
-    """Main plotting function."""
-    # Build absolute paths based on script location
-    input_path = os.path.join(SCRIPT_DIR, INPUT_CSV)
-    output_dir = os.path.join(SCRIPT_DIR, OUTPUT_DIR)
+
+def plot_porous(input_csv: str, output_dir: str, use_log: bool = True, hist_bins: int = 15):
+    """Main plotting function exposed for dashboard."""
+    # Build absolute paths based on script location or absolute paths passed
+    input_path = os.path.abspath(input_csv)
+    output_dir = os.path.abspath(output_dir)
     
     print(f"Reading: {input_path}")
     
@@ -106,7 +107,7 @@ def main():
     V = df[cols["Viscous_Resistance_1_m2"]].astype(float).to_numpy()
     I = df[cols["Inertial_Resistance_1_m"]].astype(float).to_numpy()
 
-    if not USE_LOG:
+    if not use_log:
         Vp, Ip = V, I
         vlab = "Viscous Resistance (1/m²)"
         ilab = "Inertial Resistance (1/m)"
@@ -133,9 +134,9 @@ def main():
 
     # Histograms
     print("Creating histograms...")
-    save_hist(P, "Porosity", os.path.join(output_dir, "hist_porosity.png"), bins=HIST_BINS)
-    save_hist(Vp, vlab, os.path.join(output_dir, f"hist_viscous_{suffix}.png"), bins=HIST_BINS)
-    save_hist(Ip, ilab, os.path.join(output_dir, f"hist_inertial_{suffix}.png"), bins=HIST_BINS)
+    save_hist(P, "Porosity", os.path.join(output_dir, "hist_porosity.png"), bins=hist_bins)
+    save_hist(Vp, vlab, os.path.join(output_dir, f"hist_viscous_{suffix}.png"), bins=hist_bins)
+    save_hist(Ip, ilab, os.path.join(output_dir, f"hist_inertial_{suffix}.png"), bins=hist_bins)
 
     print("\n=== Saved plots ===")
     print("Input:", input_path)
@@ -144,5 +145,26 @@ def main():
         print(" -", fn)
 
 
+def main():
+    """Main plotting function."""
+    # Get the directory where this script is located
+    # SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__)) # No longer needed if we pass absolute paths or run from known cwd
+
+    # ========== Configuration ==========
+    INPUT_CSV = "../../data/porous_LHS_100_projected.csv"
+    OUTPUT_DIR = "../../figure/porous_plots"
+    USE_LOG = True  # Set to False for linear scale
+    HIST_BINS = 15
+    # ===================================
+
+    # Resolve relative paths for standalone run
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    input_path = os.path.join(script_dir, INPUT_CSV)
+    output_dir = os.path.join(script_dir, OUTPUT_DIR)
+
+    plot_porous(input_path, output_dir, USE_LOG, HIST_BINS)
+
+
 if __name__ == "__main__":
     main()
+

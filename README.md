@@ -1,285 +1,102 @@
-# A Study of Designing Heat Exchanger
+# 열교환기 설계 최적화 연구 (Heat Exchanger Design Study)
+
 <table>
   <tr>
     <td align="center">
       <img src="assets/3D_Geometry.png" width="420"><br>
-      (a) Our Heat Exchanger Setting
+      (a) 열교환기 형상 설정
     </td>
     <td align="center">
       <img src="assets/Fig1_schem.png" width="420"><br>
-      (b) Our WorkFlow and Framework
+      (b) 워크플로우 및 프레임워크
     </td>
   </tr>
 </table>
 
-This repository supports the workflow:
+이 저장소는 핀-튜브 열교환기(Fin-Tube Heat Exchanger)의 설계를 최적화하기 위한 **All-in-One 대시보드** 및 개별 스크립트를 제공합니다.
 
-1) Generate design samples (LHS)  
-2) Convert design samples to porous parameters (Darcy–Forchheimer: 1/K, C2, etc.)  
-3) Train GP surrogate models (Q'' and ΔP) and optionally run GA optimization / prediction
-4) Validate the Value with CFD Data
+---
 
-<!-- Two tables side-by-side -->
-markdown**Table 1: Design parameter ranges.**
+## 🚀 대시보드 실행 (간편 모드)
 
-| Parameter | Symbol | Range | Unit |
-|:----------|:------:|:-----:|:----:|
-| Fin height | *f*<sub>h</sub> | [6, 30] | mm |
-| Fin spacing | *f*<sub>s</sub> | [2, 8] | mm |
-| Tube spacing | *S*<sub>t</sub> | [45, 200] | mm |
-| Tube diameter | *D*<sub>c</sub> | 24 (fixed) | mm |
-| Fin thickness | δ<sub>f</sub> | 0.5 (fixed) | mm |
+복잡한 명령어 없이 **배치 파일(`run_dashboard.bat`)**을 더블 클릭하면 자동으로 환경을 설정하고 대시보드를 실행합니다.
 
-**Table 2: Porous-medium parameter ranges.**
+1. `HeatExchanger` 폴더로 이동합니다.
+2. **`run_dashboard.bat`** 파일을 실행합니다.
+   - 첫 실행 시: 자동으로 가상환경(`.venv`)을 만들고 필요한 패키지를 설치합니다. (시간이 조금 걸릴 수 있습니다.)
+   - 이후 실행 시: 즉시 대시보드가 열립니다.
 
-| Parameter | Symbol | Range | Unit |
-|:----------|:------:|:-----:|:----:|
-| Porosity | α | [0.80, 0.941] | – |
-| Viscous resistance | 1/*K* | [8.36 × 10³, 1.68 × 10⁵] | m⁻² |
-| Inertial resistance | *C*<sub>2</sub> | [0.34, 6.83] | m⁻¹ |
+---
 
+## 🧪 예시 시나리오 (Example Scenarios)
 
+대시보드의 **Introduction** 탭에서 미리 정의된 시나리오를 불러올 수 있습니다. 각 시나리오 버튼을 클릭하면 해당 설정값이 자동으로 입력됩니다.
 
-## I. Step-by-Step
+### 1. Scenario A: Standard (표준)
+- **설명**: 일반적인 작동 조건에서의 설계입니다.
+- **설정**:
+  - 온도: 14.8 °C
+  - 유속: 2.0 m/s
+  - 안전율(k_sigma): 1.0
 
-### 0) Setup (recommended)
+### 2. Scenario B: High Precision (고정밀)
+- **설명**: 더 많은 샘플링과 높은 안전율을 적용하여 신뢰성 높은 설계를 탐색합니다.
+- **설정**:
+  - 샘플 수: 5,000개
+  - 온도: 25.0 °C
+  - 안전율(k_sigma): 2.0
 
-From the repository root (`HeatExchanger/`):
+### 3. Scenario C: High Velocity (고유속)
+- **설명**: 높은 유속 환경에서의 성능을 최적화합니다.
+- **설정**:
+  - 유속: 5.0 m/s
+  - 온도: 20.0 °C
 
-```bash
-# Go to repo root
-cd /path/to/HeatExchanger
+---
 
-# (Recommended) create & activate a venv
-python3 -m venv .venv
-source .venv/bin/activate
+## 📂 폴더 구조 및 주요 기능
 
-# install dependencies
-pip install -U pip
-pip install numpy pandas scipy scikit-learn pygad
+```text
+HeatExchanger/
+├── run_dashboard.bat      # [NEW] 원클릭 실행 파일 (Windows용)
+├── dashboard.py           # All-in-One 실행 대시보드
+├── requirements.txt       # 의존성 패키지 목록
+├── data/                  # 데이터 저장소 (CSV, XLSX)
+├── model/                 # 학습된 모델 저장소 (.joblib)
+├── figure/                # 시각화 결과 저장소
+└── scripts/               # 핵심 로직 스크립트
 ```
 
+### 1. 설계 샘플 생성 (Sampling)
+- LHS(Latin Hypercube Sampling)를 이용해 기하학적 제약조건을 만족하는 설계 변수를 생성합니다.
 
-### 0.1 (Optional) Conda environment
+### 2. 다공성 파라미터 매핑 (Mapping / Pyhsics)
+- 핀-튜브 형상을 다공성 매질로 가정하여 Darcy-Forchheimer 파라미터(점성/관성 저항)를 계산합니다.
+- **알고리즘**: Nir (1991) 상관식을 이용하여 압력강하($\Delta P$)를 계산하고, 속도-압력강하 곡선을 피팅하여 계수를 도출합니다.
+
+### 3. **대리 모델 학습 (Surrogate Modeling)**
+- CFD 결과를 기반으로 열유속(Q'') 및 압력강하(ΔP) 예측 모델 학습 (Gaussian Process)
+
+> **Note**: 초기 학습에 필요한 CFD 데이터(`total_2D_Data.xlsx`)는 제공된 Google Drive 링크에서 다운로드하여 `data/` 폴더에 위치시켜야 합니다.
+
+### 4. 최적화 (Optimization)
+- 유전 알고리즘(Genetic Algorithm)을 사용하여 열전달 효율은 높이고 압력강하는 낮추는 최적의 설계를 찾습니다.
+- **Conservative Fitness**: 예측의 불확실성(표준편차 $\sigma$)을 고려하여 보수적이고 안전한 설계를 제안합니다.
+
+---
+
+## 💻 수동 실행 방법 (고급 사용자)
+
+배치 파일을 사용하지 않고 직접 명령어로 실행하려면 다음을 따르세요.
 
 ```bash
-cd /path/to/HeatExchanger
+# 가상환경 생성
+py -m venv .venv
+.venv\Scripts\activate
 
-conda create -n wind-hx python=3.10 -y
-conda activate wind-hx
-
-# install dependencies
-pip install -U pip
+# 패키지 설치
 pip install -r requirements.txt
+
+# 대시보드 실행
+streamlit run dashboard.py
 ```
-
-> Pick **one** environment manager: venv or conda (you don't need both).
-
-
----
-
-### 1) Create / Prepare the Sampling Dataset
-
-You need a dataset with (at minimum) these design variables:
-
-- `S1_mm`
-- `fin_height_fh_mm`
-- `fin_spacing_fs_mm`
-
-There are two options.
-
-#### 1.1 Option A — Download a prepared dataset
-
-Download `porousdata.xlsx` (or an equivalent prepared dataset) and place it into:
-
-```bash
-cd /path/to/HeatExchanger
-mkdir -p data
-# put your downloaded file into HeatExchanger/data/
-ls -lh data
-```
-
-Expected examples:
-- `data/porouos_from_design.csv`
-- `data/porous_LHS_100_projected.csv`
-- `data/constrained_LHS_100k.csv`
-
-Notes
-- if you downloaded already includes a representative subset(porous_from_design.csv) you can skip section 1.3
-- if you only downloaded constrained_LHS_100k.csv, go to section 1.2, and execute mapping code
-
-#### 1.2 Option B — Generate the dataset locally (Sampling)
-
-##### a. Generate Points
-Run the sampling script (LHS sampling + porous parameter calculation):
-
-- Script: `HeatExchanger/scripts/sampling/generate_point.py`
-- Output directory: `HeatExchanger/data/` (recommended convention)
-
-```bash
-cd /path/to/HeatExchanger
-
-python3 scripts/sampling/generate_point.py
-
-# Check generated file(s)
-ls -lh data | tail -n 20
-```
-
-Expected output example:
-- `data/constrained_LHS_100k.csv`
-
-##### b. Mapping
-- Script: `HeatExchanger/scripts/sampling/generate_point.py`
-- Output directory: `HeatExchanger/data/` (recommended convention)
-
-```bash
-cd /path/to/HeatExchanger
-
-python3 scripts/sampling/mapping_to_porous.py
-
-# Check generated file(s)
-ls -lh data | tail -n 20
-```
-Expected output example:
-- `data/porous_from_design.csv`
-
-#### 1.3 Select representative points (similarity / downsampling)
-
-Select representative points using LHS sampling
-
-- Script: `HeatExchanger/scripts/lhs_sampling.py`
-- Output directory: `HeatExchanger/data/` (recommended)
-
-```bash
-cd /path/to/HeatExchanger
-
-python3 scripts/sampling/lhs_sampling.py
-
-# Check generated file(s)
-ls -lh data | tail -n 20
-```
-
-Expected output example:
-- `data/porous_LHS_100_porjected.csv`
-
----
-
-### 2) Visualizing Sampling Results
-
-If you want check the sampling results, visualize the results following this instructions
-
-- Script: `HeatExchanger/scripts/visualization/plot_porous_sampling.py`
-- Input directory: `HeatExchanger/data/`
-- Output directory: `HeatExchanger/data/`
-
-```bash
-cd /path/to/HeatExchanger
-
-# Example:
-#   input  : data/LHS_design_samples.csv
-#   output : data/porous_from_design.csv
-python3 scripts/visualization/plot_porous_sampling.py
-
-# Verify output
-ls -lh figure/porous_plots/dist_3d_log.png
-```
-Expected output example:
-- `figure/porous_plots/dist_3d_log.png`
-- `figure/porous_plots/hist_inertial_log.png`
-- `figure/porous_plots/hist_porosity.png`
-- `figure/porous_plots/hist_viscous_log.png`
-
-### 3) Train GP Surrogate Models (Q'' and ΔP) and Find Optimization Value
-
-This stage trains Gaussian Process models for:
-- `Q''` (heat flux, W/m²)
-- `ΔP` (pressure drop, Pa)
-
-> You should download the "data file"(total_2D_Data.xlsx) or get your own data using CFD
-
-#### 3.1 Train surrogate and optimize
-
-##### a. Training and Results
-If you want to see the result directly using this code
-```bash
-cd /path/to/HeatExchanger
-
-python3 scripts/surrogate/surrogate_model.py
-```
-
-##### b. Train Model
-If you want store the trained model and use at others, using this code
-```bash
-cd /path/to/HeatExchanger
-
-python3 scripts/surrogate/train_model.py
-```
-Expected output example:
-- `model/gp_surrogate_bundle.joblib`
-
-#### 3.2 Validate the surrogate Model
-
-```bash
-cd /path/to/HeatExchanger
-
-python3 scripts/surrogate/validate_model.py
-```
-
----
-
-### 4) Validate the Results using 3D CFD Value
-
-Compare:
-- Surrogate-predicted `Q''` and `ΔP`
-vs.
-- CFD-evaluated `Q''` and `ΔP`
-
-#### 4.1 Prepare CFD validation dataset
-
-Put your CFD results into `HeatExchanger/data/` as a CSV or Excel file.
-
-**Recommended columns**
-- Inputs:
-  - `S1_mm`, `fin_height_fh_mm`, `fin_spacing_fs_mm`
-- CFD outputs (suggested names):
-  - `Q_CFD` (or `Qpp_CFD`)
-  - `dP_CFD` (or `DeltaP_CFD`)
-
-```bash
-cd /path/to/HeatExchanger
-ls -lh data | grep -i cfd
-```
-
-#### 4.2 Validate "Friction Factor" Correlation
-
-```bash
-cd /path/to/HeatExchanger
-
-python3 scripts/verfication/validate_correlation.py
-```
-
-Expected outputs:
-- `figure/correlation_bar.png` 
-
-
-## II. Dataset
-
-### A) Prebuilt dataset (download)
-
-Place into:
-- `HeatExchanger/data/`
-
-| Dataset | Purpose | Target path (repo) | File name | Download link | Notes |
-|---|---|---|---|---|---|
-| constrained_LHS_100k.csv | Prebuilt discretized desing parameter space (1/K, C2, etc.) | `data/` | `constrained_LHS_100k.csv` | [Download](https://drive.google.com/file/d/1Hzyr6jFuvSDbYS0hM3SV7GWseYhy2l3B/view?usp=sharing) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
-| porous_from_design | Prebuilt mapping data from discretized design parameter space into porous parameter space | `data/` | `porous_form_design.csv` | [Download](https://drive.google.com/file/d/1-b9ITB2Py9zh9xvWC0bQPmHUWO1Jx5Su/view?usp=sharing) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
-| porous_LHS_100_projected | LHS Sampling data | `data/` | `porous_LHS_100_projected.xlsx` | [Download](https://drive.google.com/file/d/1kyfm2etmyBOGlUp7NN8oyMlIQnfx3RH1/view?usp=sharing) | Put the file exactly at `HeatExchanger/data/constrained_LHS_100k.csv` |
-| total_2D_Data | CFD/2D training dataset for surrogate (Q'', ΔP) | `data/` | `total_2D_Data.xlsx` | [Download](https://docs.google.com/spreadsheets/d/1TIY6R9JWc_unvrp2MYD1p0mqGrTnvXDm/edit?usp=drive_link&ouid=104530917061786781776&rtpof=true&sd=true) | Used by GP surrogate training + GA optimization |
-| correlation_validation | CFD/Correlation Pressure drop Results data for comparing | `data/` | `correlation.xlsx` | [Download](https://docs.google.com/spreadsheets/d/1DSY4NBFwkQYlum0YDTxTGT0CMB_H68NT/edit?usp=sharing&ouid=104530917061786781776&rtpof=true&sd=true) | Validate the correlation |
-| CFD Setup Data | 2D/3D Setup Data | `data/` | CFD setup data zip | [Download](https://drive.google.com/drive/folders/1o2IoAN5qobvBTofFHXgbaULELLnqHsHG) | Setup file |
-
-Examples:
-- `data/constrained_LHS_100_projected.xlsx`
-- `data/total_2D_Data.xlsx`
-
----

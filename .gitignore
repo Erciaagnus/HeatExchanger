@@ -1,15 +1,38 @@
-*.csv
-*.png
-*.txt
-*.xlsx
 
-# but keep assets folder contents
-!assets/
-!assets/**
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# allow images in assets
-!assets/**/*.png
-!assets/**/*.jpg
-!assets/**/*.jpeg
-!assets/**/*.gif
-!assets/**/*.svg
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Pycharm / VSCode
+.idea/
+.vscode/
+
+# Project Outputs
+output/
+figure/
+data/sample_*.csv
+data/porous_*.csv
